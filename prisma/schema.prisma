@@ -1,0 +1,86 @@
+generator client {
+  provider = "prisma-client-js"
+  output   = "../src/generated/prisma"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+model attendance {
+  id               Int        @id @default(autoincrement())
+  employeeid       Int?
+  date             DateTime   @db.Date
+  checkin          DateTime?  @db.Timestamp(6)
+  checkout         DateTime?  @db.Timestamp(6)
+  lateminutes      Int?       @default(0)
+  earlyexitminutes Int?       @default(0)
+  employees        employees? @relation(fields: [employeeid], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model departments {
+  id                                            Int         @id @default(autoincrement())
+  name                                          String      @db.VarChar(100)
+  inchargeid                                    Int?
+  employees_departments_inchargeidToemployees   employees?  @relation("departments_inchargeidToemployees", fields: [inchargeid], references: [id], onUpdate: NoAction)
+  employees_employees_departmentidTodepartments employees[] @relation("employees_departmentidTodepartments")
+}
+
+model employee_shifts {
+  id                                              Int        @id @default(autoincrement())
+  employeeid                                      Int?
+  shiftid                                         Int?
+  assignedby                                      Int?
+  assignedat                                      DateTime?  @default(now()) @db.Timestamp(6)
+  employees_employee_shifts_assignedbyToemployees employees? @relation("employee_shifts_assignedbyToemployees", fields: [assignedby], references: [id], onDelete: NoAction, onUpdate: NoAction)
+  employees_employee_shifts_employeeidToemployees employees? @relation("employee_shifts_employeeidToemployees", fields: [employeeid], references: [id], onDelete: Cascade, onUpdate: NoAction)
+  shifts                                          shifts?    @relation(fields: [shiftid], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model employees {
+  id                                                    Int                   @id @default(autoincrement())
+  name                                                  String                @db.VarChar(100)
+  email                                                 String                @unique @db.VarChar(100)
+  departmentid                                          Int?
+  role                                                  String?               @default("employee") @db.VarChar(20)
+  joindate                                              DateTime              @db.Date
+  password                                              String                @default("")
+  attendance                                            attendance[]
+  departments_departments_inchargeidToemployees         departments[]         @relation("departments_inchargeidToemployees")
+  employee_shifts_employee_shifts_assignedbyToemployees employee_shifts[]     @relation("employee_shifts_assignedbyToemployees")
+  employee_shifts_employee_shifts_employeeidToemployees employee_shifts[]     @relation("employee_shifts_employeeidToemployees")
+  departments_employees_departmentidTodepartments       departments?          @relation("employees_departmentidTodepartments", fields: [departmentid], references: [id], onUpdate: NoAction)
+  leave_requests                                        leave_requests[]
+  monthly_permissions                                   monthly_permissions[]
+}
+
+/// This table contains check constraints and requires additional setup for migrations. Visit https://pris.ly/d/check-constraints for more info.
+model leave_requests {
+  id         Int        @id @default(autoincrement())
+  employeeid Int?
+  fromdate   DateTime   @db.Date
+  todate     DateTime   @db.Date
+  reason     String?
+  status     String?    @default("pending") @db.VarChar(20)
+  employees  employees? @relation(fields: [employeeid], references: [id], onDelete: Cascade, onUpdate: NoAction)
+}
+
+model monthly_permissions {
+  id          Int        @id @default(autoincrement())
+  employeeid  Int?
+  monthyear   String     @db.VarChar(7)
+  usedminutes Int?       @default(0)
+  employees   employees? @relation(fields: [employeeid], references: [id], onDelete: Cascade, onUpdate: NoAction)
+
+  @@unique([employeeid, monthyear])
+}
+
+model shifts {
+  id              Int               @id @default(autoincrement())
+  name            String            @db.VarChar(100)
+  starttime       String            @db.VarChar(8)
+  endtime         String            @db.VarChar(8)
+  employee_shifts employee_shifts[]
+}
