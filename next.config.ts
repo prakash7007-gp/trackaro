@@ -1,9 +1,8 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
   eslint: {
-    ignoreDuringBuilds: true,
+    ignoreDuringBuilds: true, // ✅ Prevent build failure from ESLint
   },
-  // ❌ Don't use output: 'export' if using API routes
 };
 
-module.exports = nextConfig;
+module.exports = nextConfig; // ✅ Use CommonJS export
