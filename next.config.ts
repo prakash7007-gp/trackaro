@@ -1,26 +1,12 @@
 /** @type {import('next').NextConfig} */
 const nextConfig = {
-  // Enable strict mode for React
-  reactStrictMode: true,
+  output: "export",
 
-  // Enable SWC minification for better performance
-  swcMinify: true,
+  // Optional: Add trailing slashes to all routes (e.g., /about -> /about/)
+  trailingSlash: true,
 
-  // Ignore ESLint during production build (optional)
-  eslint: {
-    ignoreDuringBuilds: true,
-  },
-
-  // Allow images from external domains (update as needed)
-  images: {
-    domains: ["yourdomain.com", "images.unsplash.com"],
-  },
-
-  // Uncomment this if using a subdirectory (optional)
-  // basePath: '/your-base-path',
-
-  // Uncomment if deploying as static site (not needed for full Next.js apps on Vercel)
-  // output: 'export',
+  // Optional: Output directory (default is 'out')
+  distDir: "dist",
 };
 
 module.exports = nextConfig;
