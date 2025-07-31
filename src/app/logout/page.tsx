@@ -8,7 +8,7 @@ export default function LogoutPage() {
   useEffect(() => {
     document.cookie = "token=; Max-Age=0; path=/";
     router.push("/login");
-  }, []);
+  }, [router]); // ✅ no more ESLint warning
 
   return <p>Logging out...</p>;
 }
